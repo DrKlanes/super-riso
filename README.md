@@ -8,3 +8,5 @@ Riso, fotocopia y stencil para cualquier ilustraci√≥n. Una sola p√°gina, sin ser
 Requisitos: un navegador con WebGL2 (Chrome, Edge, Firefox, Safari 15+).
 
 Cr√©ditos: motor y texturas propios (Dumaker). Lista de tintas riso: riso-colors (MIT, Matt DesLauriers).
+
+VersiÛn publicada autom·ticamente desde el Super Riso Lab.
