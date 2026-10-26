@@ -9,6 +9,4 @@ Requisitos: un navegador con WebGL2 (Chrome, Edge, Firefox, Safari 15+).
 
 CrÃ©ditos: motor y texturas propios (Dumaker). Lista de tintas riso: riso-colors (MIT, Matt DesLauriers).
 
-Versión publicada automáticamente desde el Super Riso Lab.
-
-
+Web: https://super-riso.dumaker.com/
