@@ -12,4 +12,4 @@ Requisitos: un navegador con WebGL2 (Chrome, Edge, Firefox, Safari 15+).
 
 Créditos: motor propio (Dumaker). Papeles Reciclado, Kraft y Verjurado de [ambientCG](https://ambientcg.com) (CC0); Natural, Prensa, Acuarela y Washi generados por código (CC0). Lista de tintas riso: [riso-colors](https://github.com/mattdesl/riso-colors) (MIT, Matt DesLauriers).
 
-Web: https://super-riso.dumaker.com/ · v23.8
+Web: https://super-riso.dumaker.com/ · v23.9
