@@ -2,7 +2,7 @@
 
 Riso, fotocopia y stencil para cualquier ilustración. Una sola página, sin servidor: todo se procesa en tu navegador (WebGL2).
 
-- Abre una imagen o un proyecto `.dior` de Diorame (el dibujo se redibuja en vectorial a cualquier tamaño; encuadre con zoom y paneo) y elige técnica y estilo.
+- Abre una imagen o un proyecto `.dior` de Diorame (el dibujo se redibuja en vectorial a cualquier tamaño; encuadre con zoom y paneo: mientras te mueves ves la última impresión reencuadrada, y al parar se recalcula a la resolución de tu pantalla) y elige técnica y estilo.
 - «Sin efecto» exporta el dibujo original en alta, sin tratamiento.
 - Textura y color de papel, con el sistema de diseño de Diorame.
 - Desde Diorame, «Exportar › Super Riso ↗» abre el Lab con tu dibujo y el encuadre que estabas viendo; «‹ Diorame» cierra la pestaña del Lab y vuelve a la de Diorame (si el navegador no la deja cerrar, o abriste el Lab directamente, va a Diorame en la misma pestaña; avisa antes si hay cambios sin exportar).
@@ -12,6 +12,6 @@ Requisitos: un navegador con WebGL2 (Chrome, Edge, Firefox, Safari 15+).
 
 Créditos: motor propio (Dumaker). Papeles Reciclado, Kraft y Verjurado de [ambientCG](https://ambientcg.com) (CC0); Natural, Prensa, Acuarela y Washi generados por código (CC0). Lista de tintas riso: [riso-colors](https://github.com/mattdesl/riso-colors) (MIT, Matt DesLauriers).
 
-Web: https://super-riso.dumaker.com/ · v23.13
+Web: https://super-riso.dumaker.com/ · v23.14
 
 Problema conocido: almenas del Rotulador (mitigado en v23.9, aparcado): [docs/known-issues/marker-edges.md](docs/known-issues/marker-edges.md).
