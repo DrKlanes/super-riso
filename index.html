@@ -4846,15 +4846,23 @@ let xFillT=0;
 const xWhatNow=pool=>st.x.what==='auto' ? (pool.length?'color':'fill') : st.x.what;
 const xKitName=()=>st.x.hand==='water'?'Acuarelas':'Rotuladores';
 // el color elegido para una zona se ata al color del dibujo más cercano (con tolerancia), no al hex exacto: así sobrevive
-// a pequeños cambios del dibujo (en Diorame la imagen cambia mientras se pinta)
-function xOverFor(h){ const L=R.oklab(R.hex2rgb(h)); let bk=null, bd=.012; for(const k of Object.keys(st.x.over)){ const d=okd(L,R.oklab(R.hex2rgb(k))); if(d<bd){ bd=d; bk=k; } } return bk; }
+// a pequeños cambios del dibujo (en Diorame la imagen cambia mientras se pinta). v23.18: emparejamiento UNO A UNO — cada
+// elección va a la zona más cercana y cada zona recibe como mucho una. Antes cada zona tomaba la elección más cercana dentro
+// de la tolerancia (.012 en distancia al cuadrado ≈ 0,11 OKLab): dos zonas parecidas (dos rojos) compartían la misma elección
+// y cambiar una fila cambiaba también la otra.
+function xOverBind(zones){ const Z=zones.map(h=>R.oklab(R.hex2rgb(h))), pairs=[];
+  for(const k of Object.keys(st.x.over)){ const K=R.oklab(R.hex2rgb(k)); Z.forEach((z,i)=>{ const d=okd(K,z); if(d<.012) pairs.push([d,k,i]); }); }
+  pairs.sort((a,b)=>a[0]-b[0]); const zk=zones.map(()=>null), done=new Set();
+  for(const [,k,i] of pairs){ if(zk[i]!==null||done.has(k)) continue; zk[i]=k; done.add(k); }
+  return zk; }
 function updateMarkers(){ if(!img) return; if(!analysis) analysis=pickPal('own',8);
   const x=st.x, pool=xPool(), what=xWhatNow(pool); let rows, keys=null, rm;
   if(what==='fill'){ const box=(x.box&&x.box.length?x.box:FILL_DEFAULT.slice(0,3)).slice(0,6);
     rows=box.map((m,i)=>({box:i,name:m[0],hex:m[1]}));
     rm=R.regionMaps(prevSrc,{fill:true,nk:rows.length,srcPaper:analysis.srcPaper,cover:x.fillCover,seed:x.fillSeed}); }
   else { const zones=pool.slice(0,Math.max(1,Math.min(x.n,pool.length))); const used=new Set();
-    rows=zones.map(h=>{ const ok=xOverFor(h); let m=ok?x.over[ok]:null;
+    const ovr=xOverBind(zones);
+    rows=zones.map((h,zi)=>{ const ok=ovr[zi]; let m=ok?x.over[ok]:null;
       if(!m){ if(x.pal==='own') m=['Color del dibujo',h];
         else { const L=R.oklab(R.hex2rgb(h)); let bd=1e9; for(const k of MARKERS){ if(used.has(k[1])) continue; const M=R.oklab(R.hex2rgb(k[1])); const d=Math.hypot(L[0]-M[0],2*(L[1]-M[1]),2*(L[2]-M[2])); if(d<bd){bd=d;m=k;} } } }
       used.add(m[1]); return {zone:h,name:m[0],hex:m[1],over:ok}; });
@@ -4866,7 +4874,7 @@ function renderXPlates(){ const M=markers, rows=M.rows||[];
   if(M.what==='color'){
     rows.forEach(r=>{ const d=document.createElement('div'); d.className='plate';
       d.innerHTML=`<i class="zone" style="background:${r.zone};cursor:default" title="Zona del dibujo"></i><b aria-hidden="true" style="opacity:.5">→</b><i style="background:${r.hex}" title="Cambiar el color de esta zona"></i><span title="Cambiar el color de esta zona">${r.name}</span><em>${r.hex.toUpperCase()}</em>`+(r.over?`<button aria-label="Volver al color automático" title="Volver al color automático">↺</button>`:'');
-      d.querySelectorAll('i')[1].onclick=d.querySelector('span').onclick=e=>openMk(e.target,{zone:r.zone});
+      d.querySelectorAll('i')[1].onclick=d.querySelector('span').onclick=e=>openMk(e.target,{zone:r.zone,over:r.over});
       if(r.over) d.querySelector('button').onclick=()=>{ delete st.x.over[r.over]; xRefresh(); };
       zEl.appendChild(d); });
     $('xNote').hidden=M.zones>0; $('xNote').textContent='Este dibujo no tiene manchas de color: usa «Huecos en blanco».'; }
@@ -4882,7 +4890,7 @@ function xRefresh(){ st.x.style=''; updateMarkers(); syncUI(); schedule(); }
 function openMk(anchor, tgt){ const pop=$('pop'); pop.innerHTML=`<p><span>${tgt.box===-1?'Añadir a la caja':'Elegir color'}</span><button class="btn" id="popX">×</button></p><div class="lib"></div>`;
   const lib=pop.querySelector('.lib');
   for(const [n,h] of MARKERS){ const b=document.createElement('button'); b.style.background=h; b.title=n; b.setAttribute('aria-label',n);
-    b.onclick=()=>{ if(tgt.zone){ const ok=xOverFor(tgt.zone); if(ok) delete st.x.over[ok]; st.x.over[tgt.zone]=[n,h]; }
+    b.onclick=()=>{ if(tgt.zone){ if(tgt.over) delete st.x.over[tgt.over]; st.x.over[tgt.zone]=[n,h]; }
       else { const box=(markers.rows||[]).map(q=>[q.name,q.hex]); if(tgt.box<0) box.push([n,h]); else box[tgt.box]=[n,h]; st.x.box=box; }
       pop.hidden=true; xRefresh(); }; lib.appendChild(b); }
   pop.hidden=false; const r=anchor.getBoundingClientRect(); pop.style.left=Math.min(r.left, innerWidth-310)+'px'; pop.style.top=Math.min(r.bottom+6, innerHeight-pop.offsetHeight-10)+'px';
@@ -4903,7 +4911,8 @@ function renderPlates(){ const el=$('plates'); el.innerHTML='';
   inks.inks.forEach((h,i)=>{ const d=document.createElement('div'); d.className='plate';
     d.innerHTML=`<i style="background:${h}" title="Cambiar tinta"></i><span title="Cambiar tinta">${inks.names[i]||'Color del dibujo'}</span><em>${h.toUpperCase()}</em><button aria-label="Quitar tinta">×</button>`;
     d.querySelector('i').onclick=d.querySelector('span').onclick=e=>openLib(e.target,i);
-    d.querySelector('button').onclick=()=>{ if(inks.inks.length<=1) return; toManual(); st.manual.splice(i,1); refreshInks(); };
+    d.querySelector('button').onclick=()=>{ if(inks.inks.length<=1) return; const name=inks.names[i]||'Color del dibujo', hex=inks.inks[i];   // v23.18: por nombre y color, no por posición
+      toManual(); const j=st.manual.findIndex(x=>x[0]===name&&x[1]===hex); st.manual.splice(j<0?i:j,1); refreshInks(); };
     d.querySelector('button').hidden=inks.inks.length<=1;
     el.appendChild(d); });
   if(inks.inks.length<8){ const a=document.createElement('button'); a.className='btn'; a.textContent='+ Añadir tinta'; a.onclick=e=>openLib(e.target,-1); el.appendChild(a); }
