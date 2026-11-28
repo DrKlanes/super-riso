@@ -5351,7 +5351,7 @@ async function loadFile(f){ if(/\.dior(\.json)?$/i.test(f.name||'')||/\.json$/i.
   // v23.19: la imagen entra en el mismo encuadre que un .dior. Un SVG se redibuja nítido a cualquier tamaño: es vectorial.
   const M=imageModule(im), fr=M.frameOf(), name=f.name||'ilustracion';
   await openSource(M, im, name, {vector:f.type==='image/svg+xml'||/\.svg$/i.test(name), key:`${name}|${fr.width}×${fr.height}|${f.size}`}); }
-function setImage(el, url, keepDior){ img=el; if(!keepDior && dior && !nav){ /* imagen nueva: el proyecto deja de mandar */ }
+function setImage(el, url, keepDior){ img=el; sMapKey=''; if(!keepDior && dior && !nav){ /* imagen nueva: el proyecto deja de mandar */ }
   // fuente para la vista previa: una copia reducida (el original grande solo se usa al exportar y en la lupa)
   const W=img.width,H=img.height, s=Math.min(1,2400/Math.max(W,H)); prevSrc=document.createElement('canvas'); prevSrc.width=Math.round(W*s); prevSrc.height=Math.round(H*s);
   const px=prevSrc.getContext('2d'); px.imageSmoothingQuality='high'; px.drawImage(img,0,0,prevSrc.width,prevSrc.height);
